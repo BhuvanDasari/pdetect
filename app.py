@@ -7,6 +7,8 @@ import datetime
 import pickle
 #from sklearn.preprocessing import LabelEncoder
 import math
+
+from sqlalchemy import ForeignKey
 app = Flask(__name__)
 #localhost
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
@@ -27,13 +29,61 @@ class UserPassword(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email_ = db.Column(db.String(50))
     password_ = db.Column(db.String(50))
-    patient_type_ = db.Column(db.String(50))
+    user_type_ = db.Column(db.String(50))
+
+    user_details = db.relationship('UserDetails', back_populates='username_password')
     
 
-    def __init__(self, email_, password_, patient_type_):
+    def __init__(self, email_, password_, user_type_):
         self.email_ = email_
         self.password_ = password_
-        self.patient_type_ = patient_type_
+        self.user_type_ = user_type_
+
+class UserDetails(db.Model):
+    tablename = 'user_details'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    gender = db.Column(db.String(50))
+    age = db.Column(db.Integer)
+    weight = db.Column(db.Integer)
+    height = db.Column(db.Float)
+    bmi = db.Column(db.Float)
+    heartrate = db.Column(db.Integer)
+    arthype = db.Column(db.String(50))
+    subhypo = db.Column(db.String(50))
+    dia = db.Column(db.String(50))
+    ldopa = db.Column(db.Integer)
+    orthohypo = db.Column(db.String(50))
+    basetemp = db.Column(db.Float)
+    handtemp = db.Column(db.Float)
+    thirdfingtemp = db.Column(db.Float)
+    rr = db.Column(db.Float)
+
+    user_email = db.Column(db.String, ForeignKey('username_password.email_'))
+
+    user_details = db.relationship('UserDetails', back_populates='username_password')
+    
+    
+
+    def __init__(self, name,age,gender,weight,height,ldopa,rr,
+                 bmi,basetemp,handtemp,thirdfingertemp,dia,arthype,heartrate,
+                 subhypo,orthohypo):
+        self.name = name
+        self.gender = gender
+        self.age = age
+        self.weight = weight
+        self.height = height
+        self.bmi = bmi
+        self.heartrate = heartrate
+        self.arthype = arthype
+        self.subhypo = subhypo
+        self.dia = dia
+        self.ldopa = ldopa
+        self.orthohypo = orthohypo
+        self.basetemp = basetemp
+        self.handtemp = handtemp
+        self.thirdfingertemp = thirdfingertemp
+        self.rr = rr
 
 @app.route('/')
 def index():
@@ -46,7 +96,7 @@ def login():
 
     email = content["email"]
     password = content["password"]
-    print(email)
+    
 
     user = UserPassword.query.filter_by(email_= email).first()
     if user is None:
@@ -66,12 +116,12 @@ def createaccount():
     email = content["email"]
     password = content["password"]
     confirm_password = content["confirm_password"]
-    patient_type =  content["patient_type"]
+    user_type =  content["user_type"]
 
 
     user = UserPassword.query.filter_by(email_ = email).first()
     if user is None and password == confirm_password:
-        add_request = UserPassword(email_ = email, password_ = password, patient_type_ = patient_type)
+        add_request = UserPassword(email_ = email, password_ = password, user_type_ = user_type)
         db.session.add(add_request)
         db.session.commit()
 
@@ -82,6 +132,79 @@ def createaccount():
 
     else:
         return jsonify({"user":0})
+    
+
+@app.route('/viewuserdetails',methods=['POST'])
+def userdetails():
+    content = request.get_json()
+
+    email = content["email"]
+
+    user = UserDetails.query.filter_by(email_ = email).first()
+    
+    return jsonify({"name":user.name, "age":user.age,
+                    "gender":user.gender, "ldopa":user.ldopa,
+                    "bmi":user.bmi, "rr":user.rr, "basetemp":user.basetemp,
+                    "thirdfingtemp":user.thirdfingtemp,
+                    "handtemp":user.handtemp, "dia":user.dia,
+                    "height":user.height, "weight":user.weight, 
+                    "heartrate":user.heartrate,"orthohypo":user.orthohypo,
+                    "subhypo":user.subhypo,"arthype":user.arthype})
+
+
+@app.route('/edituserdetails',methods=['POST'])
+def userdetails():
+    content = request.get_json()
+
+    email = content["email"]
+    name = content['name']
+    age = content['age']
+    gender = content['gender']
+    ldopa = content['ldopa']
+    bmi = content['bmi']
+    rr = content['rr']
+    basetemp = content['basetemp']
+    handtemp = content['handtemp']
+    thirdfingtemp = content['thirdfingtemp']
+    dia = content['dia']
+    height = content['height']
+    weight = content['weight']
+    heartrate = content['heartrate']
+    orthohypo = content['orthohypo']
+    subhypo = content['subhypo']
+    arthype = content['arthype']
+
+    user = UserDetails.query.filter_by(email_ = email).first()
+    
+    user.name = name
+    user.age = age
+    user.gender = gender
+    user.ldopa = ldopa
+    user.bmi = bmi
+    user.rr = rr
+    user.basetemp = basetemp
+    user.thirdfingtemp = thirdfingtemp
+    user.handtemp = handtemp
+    user.dia = dia
+    user.height = height
+    user.weight = weight
+    user.heartrate = heartrate
+    user.orthohypo = orthohypo
+    user.subhypo = subhypo
+    user.arthype = arthype
+
+    db.session.commit()
+
+    return jsonify({"name":user.name, "age":user.age,
+                    "gender":user.gender, "ldopa":user.ldopa,
+                    "bmi":user.bmi, "rr":user.rr, "basetemp":user.basetemp,
+                    "thirdfingtemp":user.thirdfingtemp,
+                    "handtemp":user.handtemp, "dia":user.dia,
+                    "height":user.height, "weight":user.weight, 
+                    "heartrate":user.heartrate,"orthohypo":user.orthohypo,
+                    "subhypo":user.subhypo,"arthype":user.arthype})
+
+
 
 
 
