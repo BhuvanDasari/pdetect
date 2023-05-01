@@ -11,10 +11,10 @@ import math
 
 app = Flask(__name__)
 #localhost
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 
 #internal
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pdetect_user:AVB0AgbRcRl020rbg1Lfn8rkiC28WhOK@dpg-ch7g77o2qv26p1cuu9j0-a/pdetect'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pdetect_user:AVB0AgbRcRl020rbg1Lfn8rkiC28WhOK@dpg-ch7g77o2qv26p1cuu9j0-a/pdetect'
 
 #external
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pdetect_user:AVB0AgbRcRl020rbg1Lfn8rkiC28WhOK@dpg-ch7g77o2qv26p1cuu9j0-a.oregon-postgres.render.com/pdetect'
