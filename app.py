@@ -52,7 +52,7 @@ def login():
     if user is None:
         return jsonify({"user":0})
     
-    elif user.password == password:
+    elif user.password_ == password:
         return jsonify({"user":1})
     
     else:
@@ -70,18 +70,16 @@ def createaccount():
 
 
     user = UserPassword.query.filter_by(email_ = email).first()
-    if user is None:
-        
-        
-        if password == confirm_password:
-            add_request = UserPassword(email_ = email, password_ = password, patient_type_ = patient_type)
-            db.session.add(add_request)
-            db.session.commit()
+    if user is None and password == confirm_password:
+        add_request = UserPassword(email_ = email, password_ = password, patient_type_ = patient_type)
+        db.session.add(add_request)
+        db.session.commit()
 
-            return jsonify({"user":1})
-        
-        else:
-            return jsonify({"user":2})
+        return jsonify({"user":1})
+
+    elif user is None and password != confirm_password: 
+        return jsonify({"user":2})
+
     else:
         return jsonify({"user":0})
 
