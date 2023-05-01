@@ -135,7 +135,7 @@ def createaccount():
     
 
 @app.route('/viewuserdetails',methods=['POST'])
-def userdetails():
+def viewuserdetails():
     content = request.get_json()
 
     email = content["email"]
@@ -153,7 +153,7 @@ def userdetails():
 
 
 @app.route('/edituserdetails',methods=['POST'])
-def userdetails():
+def edituserdetails():
     content = request.get_json()
 
     email = content["email"]
