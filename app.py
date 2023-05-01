@@ -195,14 +195,7 @@ def userdetails():
 
     db.session.commit()
 
-    return jsonify({"name":user.name, "age":user.age,
-                    "gender":user.gender, "ldopa":user.ldopa,
-                    "bmi":user.bmi, "rr":user.rr, "basetemp":user.basetemp,
-                    "thirdfingtemp":user.thirdfingtemp,
-                    "handtemp":user.handtemp, "dia":user.dia,
-                    "height":user.height, "weight":user.weight, 
-                    "heartrate":user.heartrate,"orthohypo":user.orthohypo,
-                    "subhypo":user.subhypo,"arthype":user.arthype})
+    return jsonify({})
 
 
 
