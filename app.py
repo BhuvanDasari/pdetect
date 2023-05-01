@@ -8,13 +8,13 @@ import pickle
 #from sklearn.preprocessing import LabelEncoder
 import math
 
-from sqlalchemy import ForeignKey
+
 app = Flask(__name__)
 #localhost
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 
 #internal
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pdetect_user:AVB0AgbRcRl020rbg1Lfn8rkiC28WhOK@dpg-ch7g77o2qv26p1cuu9j0-a/pdetect'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pdetect_user:AVB0AgbRcRl020rbg1Lfn8rkiC28WhOK@dpg-ch7g77o2qv26p1cuu9j0-a/pdetect'
 
 #external
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pdetect_user:AVB0AgbRcRl020rbg1Lfn8rkiC28WhOK@dpg-ch7g77o2qv26p1cuu9j0-a.oregon-postgres.render.com/pdetect'
@@ -31,13 +31,16 @@ class UserPassword(db.Model):
     password_ = db.Column(db.String(50))
     user_type_ = db.Column(db.String(50))
 
-    user_details = db.relationship('UserDetails', back_populates='username_password')
+    
+
+
     
 
     def __init__(self, email_, password_, user_type_):
         self.email_ = email_
         self.password_ = password_
         self.user_type_ = user_type_
+        
 
 class UserDetails(db.Model):
     tablename = 'user_details'
@@ -59,10 +62,8 @@ class UserDetails(db.Model):
     thirdfingtemp = db.Column(db.Float)
     rr = db.Column(db.Float)
 
-    user_email = db.Column(db.String, ForeignKey('username_password.email_'))
 
-    user_details = db.relationship('UserDetails', back_populates='username_password')
-    
+
     
 
     def __init__(self, name,age,gender,weight,height,ldopa,rr,
@@ -84,6 +85,7 @@ class UserDetails(db.Model):
         self.handtemp = handtemp
         self.thirdfingertemp = thirdfingertemp
         self.rr = rr
+        
 
 @app.route('/')
 def index():
@@ -136,27 +138,36 @@ def createaccount():
 
 @app.route('/viewuserdetails',methods=['POST'])
 def viewuserdetails():
-    content = request.get_json()
-
-    email = content["email"]
-
-    user = UserDetails.query.filter_by(email_ = email).first()
     
-    return jsonify({"name":user.name, "age":user.age,
-                    "gender":user.gender, "ldopa":user.ldopa,
-                    "bmi":user.bmi, "rr":user.rr, "basetemp":user.basetemp,
-                    "thirdfingtemp":user.thirdfingtemp,
-                    "handtemp":user.handtemp, "dia":user.dia,
-                    "height":user.height, "weight":user.weight, 
-                    "heartrate":user.heartrate,"orthohypo":user.orthohypo,
-                    "subhypo":user.subhypo,"arthype":user.arthype})
+
+    user = UserDetails.query.filter_by(id = 1).first()
+    
+
+    if user is None:
+        return jsonify({"name":"", "age":"",
+                    "gender":"", "ldopa":"",
+                    "bmi":"", "rr":"", "basetemp":"",
+                    "thirdfingtemp":"",
+                    "handtemp":"", "dia":"",
+                    "height":"", "weight":"", 
+                    "heartrate":"","orthohypo":"",
+                    "subhypo":"","arthype":""})
+    
+    else:
+        return jsonify({"name":user.name, "age":user.age,
+                        "gender":user.gender, "ldopa":user.ldopa,
+                        "bmi":user.bmi, "rr":user.rr, "basetemp":user.basetemp,
+                        "thirdfingtemp":user.thirdfingtemp,
+                        "handtemp":user.handtemp, "dia":user.dia,
+                        "height":user.height, "weight":user.weight, 
+                        "heartrate":user.heartrate,"orthohypo":user.orthohypo,
+                        "subhypo":user.subhypo,"arthype":user.arthype})
 
 
 @app.route('/edituserdetails',methods=['POST'])
 def edituserdetails():
     content = request.get_json()
 
-    email = content["email"]
     name = content['name']
     age = content['age']
     gender = content['gender']
@@ -174,26 +185,41 @@ def edituserdetails():
     subhypo = content['subhypo']
     arthype = content['arthype']
 
-    user = UserDetails.query.filter_by(email_ = email).first()
-    
-    user.name = name
-    user.age = age
-    user.gender = gender
-    user.ldopa = ldopa
-    user.bmi = bmi
-    user.rr = rr
-    user.basetemp = basetemp
-    user.thirdfingtemp = thirdfingtemp
-    user.handtemp = handtemp
-    user.dia = dia
-    user.height = height
-    user.weight = weight
-    user.heartrate = heartrate
-    user.orthohypo = orthohypo
-    user.subhypo = subhypo
-    user.arthype = arthype
 
-    db.session.commit()
+    user = UserDetails.query.filter_by(id = 1).first()
+
+    if user is None:
+        user_add_request = UserDetails(name = name, 
+                  age = age,
+                  gender = gender,ldopa = ldopa,
+                  bmi = bmi,rr = rr,
+                  basetemp = basetemp,handtemp = handtemp,
+                  thirdfingertemp = thirdfingtemp,dia = dia,
+                  height = height,weight = weight,
+                  heartrate = heartrate,orthohypo = orthohypo,
+                  subhypo = subhypo,arthype = arthype)
+        db.session.add(user_add_request)
+        db.session.commit()
+
+    else:
+        user.name = name
+        user.age = age
+        user.gender = gender
+        user.ldopa = ldopa
+        user.bmi = bmi
+        user.rr = rr
+        user.basetemp = basetemp
+        user.thirdfingtemp = thirdfingtemp
+        user.handtemp = handtemp
+        user.dia = dia
+        user.height = height
+        user.weight = weight
+        user.heartrate = heartrate
+        user.orthohypo = orthohypo
+        user.subhypo = subhypo
+        user.arthype = arthype
+
+        db.session.commit()
 
     return jsonify({})
 
